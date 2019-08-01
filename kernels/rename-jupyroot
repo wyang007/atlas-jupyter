@@ -1,0 +1,9 @@
+{
+ "language": "c++",
+ "display_name": "ROOT C++",
+ "argv": [
+    "/opt/slac/jupyterlab/launch.bash-with-jupyroot",
+     "3",
+    "{connection_file}"
+ ]
+}
