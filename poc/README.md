@@ -40,7 +40,9 @@ The integration of PyROOT and C++ ROOT into JupyterLab is done via a bind mount 
    
    This will build a compressed image of ~1GB.
    
-2. Make sure directory `/dir/mycvmfs` is available. Then run: 
+2. Build ROOT
+
+   Make sure directory `/dir/mycvmfs` is available. Then run: 
 
    `singularity exec -B /dir/mycvmfs:/mycvmfs mycontainer.img sh /mycvmfs/compile_root.sh`
 
