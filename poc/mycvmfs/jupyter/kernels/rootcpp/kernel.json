@@ -1,0 +1,9 @@
+{
+ "language": "c++",
+ "display_name": "ROOT C++",
+ "argv": [
+    "/mycvmfs/jupyter/launch/rootcpp.sh",
+     "3",
+    "{connection_file}"
+ ]
+}

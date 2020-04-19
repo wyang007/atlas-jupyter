@@ -1,0 +1,92 @@
+#
+# Author: Wei Yang (SLAC National Accelerator Laboratory / Stanford University, 2020)
+#
+
+Bootstrap: yum
+OSVersion: 7
+MirrorURL: http://mirror.centos.org/centos-%{OSVERSION}/%{OSVERSION}/os/$basearch/
+Include: yum
+
+%labels
+Maintainer Wei.Yang
+Version 1 
+Purpose Jupyter for US ATLAS users
+
+%setup
+  mkdir -p $SINGULARITY_ROOTFS/etc/grid-security/certificates 
+  mkdir -p $SINGULARITY_ROOTFS/etc/grid-security/vomsdir
+
+# optional: prefill certificates and vomsdir.
+  GRIDSECURITY="/cvmfs/oasis.opensciencegrid.org/mis/osg-wn-client/current/el7-x86_64/etc/grid-security"
+  if [ -d $GRIDSECURITY ]; then
+    cd $GRIDSECURITY
+    tar chf - certificates vomsdir | (cd $SINGULARITY_ROOTFS/etc/grid-security; tar xf -)
+  fi
+
+%post
+  yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+  # Install dependencies for Boost and ROOT and a login environment
+  yum install -y curl libcurl libcurl-devel \
+                 mariadb mariadb-libs mariadb-devel \
+                 make wget git patch gcc gcc-c++ gcc-gfortran gdb python3-devel cmake cmake3 \
+                 binutils net-tools hostname vi vim-enhanced strace telnet iputils which openssh-clients tcsh \
+                 libX11-devel libXpm-devel libXft-devel libXext-devel \
+                 openssl-devel pcre-devel mesa-libGL-devel \
+                 mesa-libGLU-devel glew-devel fftw-devel graphviz-devel \
+                 avahi-compat-libdns_sd-devel libxml2-devel gls-devel blas-devel \
+                 bazel http-parser nodejs perl-Digest-MD5 zlib-devel perl-ExtUtils-MakeMaker gettext \
+                 libffi-devel pandoc \
+                 emacs bzip2 zip unzip lrzip tree ack screen tmux emacs-nox \
+                 libarchive-devel fuse-sshfs jq graphviz \
+                 dvipng xterm \
+                 xrootd-client xrootd-client-lib xrootd-client-devel davix davix-devel rclone
+               # texlive texlive-collection-xetex texlive-ec texlive-upquote texlive-adjustbox \
+
+  yum install -y python3-pip 
+  python3 -m pip install --upgrade pip setuptools
+
+  export PYCURL_SSL_LIBRARY=openssl
+  python3 -m pip --no-cache-dir install \
+    jupyterlab \
+    ipykernel \
+    jupyterhub \
+    pyyaml \
+    pycurl \
+    python-oauth2 \
+    wheel \
+    cryptography \
+    mysqlclient
+
+  python3 -m pip --no-cache-dir install \
+    uproot \
+    h5py \
+    iminuit \
+    tensorflow \
+    pydot \
+    keras \
+    jupyter \
+    metakernel \
+    zmq \
+    dask[complete] \
+    xlrd xlwt openpyxl 
+
+  # can not install root_numpy until ROOTSYS is defined
+  #  root_numpy \
+
+  #python3 -m pip install jupyterlab ipykernel pyyaml pycurl==7.43.0.1 python-oauth2 wheel cryptography mysqlclient
+  #jupyter serverextension enable --py jupyterlab --sys-prefix
+  #export  JUPYTERHUB_BIN=/opt/jupyterhub
+  #mkdir -p ${JUPYTERHUB_BIN}/config  
+
+  # allow arrow key navigation in terminal vim
+  echo 'set term=builtin_ansi' >> /etc/vimrc
+
+  # Depend on the following two bind mounts to provide ROOT and kernels for ROOT C++ and PyROOT
+  mkdir /cvmfs /mycvmfs
+  ln -s /mycvmfs/jupyter/kernels/pyroot  /usr/local/share/jupyter/kernels/pyroot
+  ln -s /mycvmfs/jupyter/kernels/rootcpp /usr/local/share/jupyter/kernels/rootcpp
+
+  yum clean all
+%runscript
+  jupyter lab 
