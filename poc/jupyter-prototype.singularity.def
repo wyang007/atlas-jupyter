@@ -23,6 +23,12 @@ Purpose Jupyter for US ATLAS users
     tar chf - certificates vomsdir | (cd $SINGULARITY_ROOTFS/etc/grid-security; tar xf -)
   fi
 
+  cp /tmp/nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64.rpm \
+     /tmp/libcudnn7-7.6.5.33-1.cuda10.2.x86_64.rpm \
+     /tmp/libcudnn7-devel-7.6.5.33-1.cuda10.2.x86_64.rpm \
+     /tmp/libcudnn7-doc-7.6.5.33-1.cuda10.2.x86_64.rpm \
+     $SINGULARITY_ROOTFS/var
+
 %post
   yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 
@@ -43,6 +49,48 @@ Purpose Jupyter for US ATLAS users
                  xrootd-client xrootd-client-lib xrootd-client-devel davix davix-devel rclone
                # texlive texlive-collection-xetex texlive-ec texlive-upquote texlive-adjustbox \
 
+  # Install CUDA ToolKit (latest 10.2), required by TensoRT
+  #   https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+  #   https://developer.nvidia.com/cuda-downloads
+  yum install -y kernel-devel-$(uname -r) kernel-headers-$(uname -r) yum-utils
+  yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
+  yum -y install nvidia-driver-latest-dkms cuda
+  yum -y install cuda-drivers
+
+  # Install cuDNN7
+  rpm -Uvh /var/libcudnn7-7.6.5.33-1.cuda10.2.x86_64.rpm \
+           /var/libcudnn7-devel-7.6.5.33-1.cuda10.2.x86_64.rpm \
+           /var/libcudnn7-doc-7.6.5.33-1.cuda10.2.x86_64.rpm
+
+  rm /var/libcudnn7-*
+
+  # Current tensoflow-gpu require TensorRT 6, which depends on cuDNN7.
+  # TensorRT 7 does not seem to depend on cnDNN
+  # Install TensorRT: https://docs.nvidia.com/deeplearning/sdk/tensorrt-install-guide/index.html
+  rpm -Uvh /var/nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64.rpm
+  rm /var/nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64.rpm
+  yum install -y graphsurgeon-tf-6.0.1-1.cuda10.2.x86_64 \
+                 libnvinfer-bin-6.0.1-1.cuda10.2.x86_64 \
+                 libnvinfer-devel-6.0.1-1.cuda10.2.x86_64 \
+                 libnvinfer-doc-6.0.1-1.cuda10.2.x86_64 \
+                 libnvinfer-plugin-devel-6.0.1-1.cuda10.2.x86_64 \
+                 libnvinfer-plugin6-6.0.1-1.cuda10.2.x86_64 \
+                 libnvinfer-samples-6.0.1-1.cuda10.2.x86_64 \
+                 libnvinfer6-6.0.1-1.cuda10.2.x86_64 \
+                 libnvonnxparsers-devel-6.0.1-1.cuda10.2.x86_64 \
+                 libnvonnxparsers6-6.0.1-1.cuda10.2.x86_64 \
+                 libnvparsers-devel-6.0.1-1.cuda10.2.x86_64 \
+                 libnvparsers6-6.0.1-1.cuda10.2.x86_64 \
+                 python-libnvinfer-6.0.1-1.cuda10.2.x86_64 \
+                 python-libnvinfer-devel-6.0.1-1.cuda10.2.x86_64 \
+                 python3-libnvinfer-6.0.1-1.cuda10.2.x86_64 \
+                 python3-libnvinfer-devel-6.0.1-1.cuda10.2.x86_64
+
+  # bug fix
+  ln -s /usr/local/cuda/lib64/libcudart.so /usr/lib64/libcudart.so.10.1
+
+  rpm -e nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64
+
   yum install -y python3-pip 
   python3 -m pip install --upgrade pip setuptools
 
@@ -58,11 +106,15 @@ Purpose Jupyter for US ATLAS users
     cryptography \
     mysqlclient
 
+  # install pycuda, required by TensoRT Python API
+  #export PATH=$PATH:/usr/local/cuda/bin    # To find nvcc
+  #python3 -m pip --no-cache-dir install pycuda pytest
+
   python3 -m pip --no-cache-dir install \
     uproot \
     h5py \
     iminuit \
-    tensorflow \
+    tensorflow-gpu \
     pydot \
     keras \
     jupyter \

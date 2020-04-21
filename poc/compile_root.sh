@@ -7,7 +7,7 @@
 roottarball="root_v6.12.06.source.tar.gz"
 rootinstdir="/mycvmfs/pkgs/root-6.12.06"
 
-wget --quiet https://root.cern.ch/download/$roottarball -O /tmp/rootsource.tar.gz && \
+wget --quiet https://root.cern.ch/download/$roottarball -O /tmp/rootsource.tar.gz
 tar -zxf /tmp/rootsource.tar.gz --directory=/tmp
 mkdir -p /tmp/root-6.12.06/rootbuild 
 cd /tmp/root-6.12.06/rootbuild 
