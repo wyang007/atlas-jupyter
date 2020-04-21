@@ -3,7 +3,7 @@
  "display_name": "ROOT C++",
  "argv": [
     "/mycvmfs/jupyter/launch/rootcpp.sh",
-     "3",
+     "2",
     "{connection_file}"
  ]
 }

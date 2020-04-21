@@ -35,7 +35,7 @@ Purpose Jupyter for US ATLAS users
   # Install dependencies for Boost and ROOT and a login environment
   yum install -y curl libcurl libcurl-devel \
                  mariadb mariadb-libs mariadb-devel \
-                 make wget git patch gcc gcc-c++ gcc-gfortran gdb python3-devel cmake cmake3 \
+                 make wget git patch gcc gcc-c++ gcc-gfortran gdb python-devel python3-devel cmake cmake3 \
                  binutils net-tools hostname vi vim-enhanced strace telnet iputils which openssh-clients tcsh \
                  libX11-devel libXpm-devel libXft-devel libXext-devel \
                  openssl-devel pcre-devel mesa-libGL-devel \
@@ -45,9 +45,27 @@ Purpose Jupyter for US ATLAS users
                  libffi-devel pandoc \
                  emacs bzip2 zip unzip lrzip tree ack screen tmux emacs-nox \
                  libarchive-devel fuse-sshfs jq graphviz \
-                 dvipng xterm \
+                 dvipng xterm file \
                  xrootd-client xrootd-client-lib xrootd-client-devel davix davix-devel rclone
                # texlive texlive-collection-xetex texlive-ec texlive-upquote texlive-adjustbox \
+
+  yum install -y python2-pip
+  python2 -m pip install --upgrade pip
+  python2 -m pip --no-cache-dir install \
+    ipykernel \
+    zmq \
+    numpy \
+    scipy \
+    wheel \
+    urllib3
+
+  # install numpy and then install matplotlib
+  python2 -m pip --no-cache-dir install \
+    matplotlib==1.2.0 \
+    pyparsing \
+    xrootd \
+    uproot \
+    metakernel
 
   # Install CUDA ToolKit (latest 10.2), required by TensoRT
   #   https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
@@ -68,7 +86,6 @@ Purpose Jupyter for US ATLAS users
   # TensorRT 7 does not seem to depend on cnDNN
   # Install TensorRT: https://docs.nvidia.com/deeplearning/sdk/tensorrt-install-guide/index.html
   rpm -Uvh /var/nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64.rpm
-  rm /var/nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64.rpm
   yum install -y graphsurgeon-tf-6.0.1-1.cuda10.2.x86_64 \
                  libnvinfer-bin-6.0.1-1.cuda10.2.x86_64 \
                  libnvinfer-devel-6.0.1-1.cuda10.2.x86_64 \
@@ -91,6 +108,8 @@ Purpose Jupyter for US ATLAS users
 
   rpm -e nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64
 
+  rm /var/nv-tensorrt-repo-rhel7-cuda10.2-trt6.0.1.8-ga-20191108-1-1.x86_64.rpm
+
   yum install -y python3-pip 
   python3 -m pip install --upgrade pip setuptools
 
@@ -104,6 +123,7 @@ Purpose Jupyter for US ATLAS users
     python-oauth2 \
     wheel \
     cryptography \
+    urllib3==1.24.3 \
     mysqlclient
 
   # install pycuda, required by TensoRT Python API
@@ -120,6 +140,7 @@ Purpose Jupyter for US ATLAS users
     jupyter \
     metakernel \
     zmq \
+    matplotlib \
     dask[complete] \
     xlrd xlwt openpyxl 
 
@@ -137,6 +158,7 @@ Purpose Jupyter for US ATLAS users
   # Depend on the following two bind mounts to provide ROOT and kernels for ROOT C++ and PyROOT
   mkdir /cvmfs /mycvmfs
   ln -s /mycvmfs/jupyter/kernels/pyroot  /usr/local/share/jupyter/kernels/pyroot
+  ln -s /mycvmfs/jupyter/kernels/pyroot2 /usr/local/share/jupyter/kernels/pyroot2
   ln -s /mycvmfs/jupyter/kernels/rootcpp /usr/local/share/jupyter/kernels/rootcpp
 
   yum clean all

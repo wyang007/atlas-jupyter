@@ -1,0 +1,9 @@
+{
+ "display_name": "py2.7-w-ROOT",
+ "language": "python",
+ "argv": [
+    "/mycvmfs/jupyter/launch/pyroot2.sh",
+     "2",
+    "{connection_file}"
+ ]
+}

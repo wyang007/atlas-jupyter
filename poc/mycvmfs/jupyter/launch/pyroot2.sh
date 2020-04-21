@@ -7,4 +7,4 @@ fi
 
 export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/site-packages:/usr/lib64/python2.7/site-packages
 
-exec python${PYTHON_VER} -m JupyROOT.kernel.rootkernel -f ${CONFIG_FILE}
+exec python${PYTHON_VER} -m ipykernel -f ${CONFIG_FILE}
