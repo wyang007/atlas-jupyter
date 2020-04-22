@@ -52,7 +52,7 @@ The integration of PyROOT and C++ ROOT into JupyterLab is done via a bind mount 
    
 3. To start the container, run:
 
-   `singularity run -B /dir/mycvmfs:/mycvmfs mycontainer.img`
+   `singularity run -B /dir/mycvmfs:/mycvmfs --nv mycontainer.img`
    
    This will print out a line like this
    
@@ -63,3 +63,15 @@ The integration of PyROOT and C++ ROOT into JupyterLab is done via a bind mount 
    a. ssh -L 8888:localhost:8888 host_that_run_singularity
    
    b. Point web browser to `http://127.0.0.1:8888/?token=ce196dd742643ff2ff3ffbf228dcb6fa7b6aa68a68f5f62d`
+   
+5. Use with the ATLAS software
+
+   ATLAS uses CVMFS to distribe software. Most of ATLAS user analysis releases use Python2.x. For this reason two kernels, Python2.7-w-ROOT and ROOT C++ are provided using Python2.7. Before using these two Jupyter kernels, one need to setup the ATLAS envorinment. 
+   
+   These kernels "source" ~/notebooks/.user_setups before they starts. ATLAS related setup can therefore be put there. See an example in user_setups script in this git repo. Note PYTHON_VER should be tested before setup up ATLAS releases. Python3 will not work with ATLAS releases.
+
+   uproot is available in all Python kernels.
+
+6. Testing TensorFlow and Keras
+
+   Using TensoFlow and Keras in this prototype requires a Nvidia GPU. The host operating systems also needs to load the Nvidia kernel driver, and the Singularity container need to be started with the `--nv` options. After that, go into the container and test it with the `python3 test.tf.and.keras.py` script from this git repo. 
