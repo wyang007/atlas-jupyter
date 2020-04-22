@@ -57,9 +57,10 @@ Purpose Jupyter for US ATLAS users
     numpy \
     scipy \
     wheel \
+    requests \
     urllib3
 
-  # install numpy and then install matplotlib
+  # install numpy and then install matplotlib, "xrootd" is actually pyxrootd
   python2 -m pip --no-cache-dir install \
     matplotlib==1.2.0 \
     pyparsing \
@@ -132,6 +133,7 @@ Purpose Jupyter for US ATLAS users
 
   python3 -m pip --no-cache-dir install \
     uproot \
+    xrootd \
     h5py \
     iminuit \
     tensorflow-gpu \
